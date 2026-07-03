@@ -172,7 +172,7 @@ header h1 {
     }
 }
 
-.snippet-header {
+.snippet-header { /* m*/
     display: flex;
     justify-content: space-between;
     align-items: center;
