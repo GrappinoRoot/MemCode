@@ -1,0 +1,15 @@
+# Proteggi il database da accesso diretto
+<FilesMatch "\.sqlite$">
+    Require all denied
+</FilesMatch>
+
+# Proteggi config directory
+<FilesMatch "database\.php$">
+    Require all denied
+</FilesMatch>
+
+# Disabilita il listing delle directory
+Options -Indexes
+
+# Imposta la pagina degli errori 403
+ErrorDocument 403 /index.html

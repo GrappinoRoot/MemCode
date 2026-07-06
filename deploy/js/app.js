@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const API_URL = 'http://localhost:8000/index.php?action=snippets';
+    const API_URL = window.location.origin + '/api/snippets.php?action=snippets';
     const snippetsList = document.getElementById('snippetsList');
     const snippetForm = document.getElementById('snippetForm');
     const formSection = document.querySelector('.form-section');
@@ -60,7 +60,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const result = await response.json();
 
             if (editingId) {
-                // Aggiorna lo snippet nell'array
                 const index = allSnippets.findIndex(function (s) {
                     return s.id == editingId;
                 });
@@ -69,7 +68,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 editingId = null;
             } else {
-                // Aggiunge il nuovo snippet in cima
                 allSnippets.unshift(result);
             }
 
@@ -83,7 +81,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Funzione per filtrare e ri-renderizzare le card
     function filterAndRender() {
         const query = searchInput.value.toLowerCase().trim();
         const lang = filterLanguage.value;
@@ -118,13 +115,11 @@ document.addEventListener('DOMContentLoaded', function () {
             snippetsList.appendChild(card);
         });
 
-        // Applica highlight.js a tutti i blocchi di codice appena aggiunti
         document.querySelectorAll('.snippet-code pre code').forEach(function (block) {
             hljs.highlightElement(block);
         });
     }
 
-    // Funzione per caricare tutti gli snippet
     async function loadSnippets() {
         setLoading(true);
 
@@ -141,7 +136,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Funzione per modificare uno snippet
     function editSnippet(snippet) {
         editingId = snippet.id;
         formTitle.value = snippet.title || '';
@@ -157,7 +151,6 @@ document.addEventListener('DOMContentLoaded', function () {
         formTitle.focus();
     }
 
-    // Funzione per resettare il form
     function resetForm() {
         snippetForm.reset();
         editingId = null;
@@ -165,7 +158,6 @@ document.addEventListener('DOMContentLoaded', function () {
         btnText.textContent = 'Salva Snippet';
     }
 
-    // Funzione per eliminare uno snippet
     async function deleteSnippet(id, cardElement) {
         if (!confirm('Eliminare questo snippet definitivamente?')) return;
 
@@ -179,7 +171,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 throw new Error(err.error || 'Errore durante l\'eliminazione');
             }
 
-            // Animazione di uscita
             cardElement.style.transition = 'opacity 0.3s, transform 0.3s';
             cardElement.style.opacity = '0';
             cardElement.style.transform = 'translateX(40px)';
@@ -195,7 +186,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Funzione per creare una card HTML
     function createSnippetCard(snippet) {
         const language = snippet.language || 'other';
         const code = snippet.code || '';
@@ -255,19 +245,16 @@ document.addEventListener('DOMContentLoaded', function () {
             <p class="snippet-date">${date}</p>
         `;
 
-        // Evento modifica
         const editBtn = card.querySelector('.btn-edit');
         editBtn.addEventListener('click', function () {
             editSnippet(snippet);
         });
 
-        // Evento delete
         const deleteBtn = card.querySelector('.btn-delete');
         deleteBtn.addEventListener('click', function () {
             deleteSnippet(snippet.id, card);
         });
 
-        // Evento copia
         const copyBtn = card.querySelector('.btn-copy');
         copyBtn.addEventListener('click', function () {
             copyToClipboard(code, copyBtn);
@@ -276,7 +263,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return card;
     }
 
-    // Helper per loading state
     function setLoading(isLoading) {
         if (isLoading) {
             submitBtn.disabled = true;
@@ -300,7 +286,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Helper per copiare negli appunti
     function copyToClipboard(text, button) {
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text).then(function () {
@@ -349,7 +334,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 2000);
     }
 
-    // Helper per escaping HTML
     function escapeHtml(text) {
         if (!text) return '';
         const div = document.createElement('div');

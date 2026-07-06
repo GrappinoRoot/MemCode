@@ -39,13 +39,14 @@ function handleSnippets() {
         }
 
         $stmt = $pdo->prepare('
-            INSERT INTO snippets (title, language, code, notes)
-            VALUES (:title, :language, :code, :notes)
+            INSERT INTO snippets (title, language, category, code, notes)
+            VALUES (:title, :language, :category, :code, :notes)
         ');
 
         $stmt->execute([
             ':title' => sanitizeInput($input['title']),
-            ':language' => sanitizeInput($input['language'] ?? 'Other'),
+            ':language' => sanitizeInput($input['language'] ?? 'other'),
+            ':category' => sanitizeInput($input['category'] ?? ''),
             ':code' => $input['code'], // il codice non va sanitizzato per preservare la sintassi
             ':notes' => sanitizeInput($input['notes']),
         ]);
@@ -91,13 +92,14 @@ function handleSnippets() {
 
         $stmt = $pdo->prepare('
             UPDATE snippets
-            SET title = :title, language = :language, code = :code, notes = :notes
+            SET title = :title, language = :language, category = :category, code = :code, notes = :notes
             WHERE id = :id
         ');
 
         $stmt->execute([
             ':title' => sanitizeInput($input['title'] ?? $existing['title']),
             ':language' => sanitizeInput($input['language'] ?? $existing['language']),
+            ':category' => sanitizeInput($input['category'] ?? $existing['category'] ?? ''),
             ':code' => $input['code'] ?? $existing['code'],
             ':notes' => sanitizeInput($input['notes'] ?? $existing['notes']),
             ':id' => $id,
