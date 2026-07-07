@@ -1,27 +1,71 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevVault - Snippet Manager</title>
-    
+
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+
     <!-- highlight.js -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <div class="container">
         <!-- Header -->
         <header>
-            <h1>&#128187; DevVault</h1>
+            <h1>
+                < MemCode>
+                    </MemCode>
+            </h1>
             <p class="subtitle">Il tuo archivio personale di snippet di codice</p>
+            <div class="auth-buttons">
+                <button id="btnLogin" class="btn-auth btn-auth--login">Accedi</button>
+                <button id="btnRegister" class="btn-auth btn-auth--register">Registrati</button>
+            </div>
         </header>
+
+        <!-- Modale Auth -->
+        <div id="authModal" class="modal">
+            <div class="modal-content">
+                <span id="authClose" class="modal-close">&times;</span>
+                <h2 id="authTitle">Accedi</h2>
+
+                <form id="authForm">
+                    <div class="form-group" id="authUsernameGroup" style="display:none;">
+                        <label for="authUsername">Username</label>
+                        <input type="text" id="authUsername" placeholder="il tuo username">
+                    </div>
+                    <div class="form-group">
+                        <label for="authEmail">Email</label>
+                        <input type="email" id="authEmail" placeholder="La tua email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="authPassword">Password</label>
+                        <input type="password" id="authPassword" placeholder="password" required>
+                    </div>
+                    <div class="form-group" id="authConfirmGroup" style="display:none;">
+                        <label for="authConfirm">Conferma Password</label>
+                        <input type="password" id="authConfirm" placeholder="ripeti la password">
+                    </div>
+                    <button type="submit" class="btn-submit" id="authSubmit">Accedi</button>
+                </form>
+
+                <p class="auth-switch">
+                    Non hai un account?
+                    <a href="#" id="authToggleLink">Registrati</a>
+                </p>
+            </div>
+        </div>
 
         <!-- Form -->
         <section class="form-section">
@@ -69,12 +113,14 @@
 
                 <div class="form-group">
                     <label for="code">Codice *</label>
-                    <textarea id="code" name="code" rows="6" placeholder="Incolla il tuo codice qui..." required></textarea>
+                    <textarea id="code" name="code" rows="6" placeholder="Incolla il tuo codice qui..."
+                        required></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="notes">Descrizione *</label>
-                    <textarea id="notes" name="notes" rows="3" placeholder="Descrivi a cosa serve questo snippet..." required></textarea>
+                    <textarea id="notes" name="notes" rows="3" placeholder="Descrivi a cosa serve questo snippet..."
+                        required></textarea>
                 </div>
 
                 <button type="submit" class="btn-submit">
@@ -89,11 +135,13 @@
             <div class="snippets-header">
                 <h2>Snippet salvati</h2>
                 <div class="search-bar">
-                    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
-                    <input type="text" id="searchInput" placeholder="Cerca per titolo, descrizione o codice..." autocomplete="off">
+                    <input type="text" id="searchInput" placeholder="Cerca per titolo, descrizione o codice..."
+                        autocomplete="off">
                     <select id="filterLanguage">
                         <option value="">Tutti i linguaggi</option>
                         <option value="php">PHP</option>
@@ -133,4 +181,5 @@
     <!-- Custom JS -->
     <script src="js/app.js"></script>
 </body>
+
 </html>

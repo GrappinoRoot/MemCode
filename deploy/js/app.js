@@ -1,4 +1,12 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const authModal = document.getElementById('authModal')
+    const btnLogin = document.getElementById('btnLogin')
+    const btnRegister = document.getElementById('btnRegister');
+    const authClose = document.getElementById('authClose');
+    const authTitle = document.getElementById('authTitle');
+    const authSubmit = document.getElementById('authSubmit');
+    const authForm = document.getElementById('authForm');
+    const authToggleLink = document.getElementById('authToggleLink');
     const API_URL = window.location.origin + '/api/snippets.php?action=snippets';
     const snippetsList = document.getElementById('snippetsList');
     const snippetForm = document.getElementById('snippetForm');
@@ -17,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let allSnippets = [];
     let editingId = null;
+    let isLoginMode = true;
 
     // Carica snippet all'avvio
     loadSnippets();
@@ -80,6 +89,142 @@ document.addEventListener('DOMContentLoaded', function () {
             setLoading(false);
         }
     });
+
+    btnLogin.addEventListener('click', () => openAuthModal(true));
+    btnRegister.addEventListener('click', () => openAuthModal(false));
+    authClose.addEventListener('click', closeAuthModal);
+    authModal.addEventListener('click', (e) => {
+        if (e.target === authModal) closeAuthModal();
+    });
+
+    authToggleLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        isLoginMode = !isLoginMode;
+        updateAuthModal();
+    });
+
+    function openAuthModal(loginMode) {
+        isLoginMode = loginMode;
+        updateAuthModal();
+        authModal.style.display = 'flex';
+    }
+
+    function closeAuthModal() {
+        authModal.style.display = 'none';
+    }
+
+    function updateAuthModal() {
+        const usernameGroup = document.getElementById('authUsernameGroup');
+        const confirmGroup = document.getElementById('authConfirmGroup');
+        const usernameInput = document.getElementById('authUsername');
+        const confirmInput = document.getElementById('authConfirm');
+        if (isLoginMode) {
+            authTitle.textContent = 'Accedi';
+            authSubmit.textContent = 'Accedi';
+            authToggleLink.textContent = 'Registrati';
+            authToggleLink.parentElement.firstChild.textContent = 'Non hai un account? ';
+            usernameGroup.style.display = 'none';
+            confirmGroup.style.display = 'none';
+            usernameInput.required = false;
+            confirmInput.required = false;
+        } else {
+            authTitle.textContent = 'Registrati';
+            authSubmit.textContent = 'Crea account';
+            authToggleLink.textContent = 'Accedi';
+            authToggleLink.parentElement.firstChild.textContent = 'Hai già un account? ';
+            usernameGroup.style.display = 'block';
+            confirmGroup.style.display = 'block';
+            usernameInput.required = true;
+            confirmInput.required = true;
+        }
+    }
+
+    // Submit form autenticazione
+    authForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const email = document.getElementById('authEmail').value.trim();
+        const password = document.getElementById('authPassword').value;
+
+        if (isLoginMode) {
+            // LOGIN
+            try {
+                const response = await fetch(window.location.origin + '/api/auth.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'login',
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Errore durante il login');
+                }
+
+                // Salva token in localStorage
+                localStorage.setItem('authToken', data.token);
+                localStorage.setItem('authUser', JSON.stringify(data.user));
+
+                alert('Benvenuto ' + data.user.username + '!');
+                closeAuthModal();
+                // Ricarica snippet per questo utente
+                loadSnippets();
+            } catch (err) {
+                alert('Errore: ' + err.message);
+            }
+        } else {
+            // REGISTRAZIONE
+            const username = document.getElementById('authUsername').value.trim();
+            const confirm = document.getElementById('authConfirm').value;
+
+            if (password !== confirm) {
+                alert('Le password non coincidono');
+                return;
+            }
+            if (!username) {
+                alert('Inserisci un username');
+                return;
+            }
+
+            try {
+                const response = await fetch(window.location.origin + '/api/auth.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'register',
+                        username: username,
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Errore durante la registrazione');
+                }
+
+                // Salva token in localStorage
+                localStorage.setItem('authToken', data.token);
+                localStorage.setItem('authUser', JSON.stringify(data.user));
+
+                alert('Registrazione completata! Benvenuto ' + data.user.username + '!');
+                closeAuthModal();
+                // Ricarica snippet per questo utente
+                loadSnippets();
+            } catch (err) {
+                alert('Errore: ' + err.message);
+            }
+        }
+
+        // Resetta i campi del form auth
+        authForm.reset();
+    });
+
 
     function filterAndRender() {
         const query = searchInput.value.toLowerCase().trim();
