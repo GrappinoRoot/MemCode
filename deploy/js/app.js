@@ -97,8 +97,9 @@ document.addEventListener('DOMContentLoaded', function () {
             filterAndRender();
             resetForm();
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            showToast(editingId ? 'Snippet aggiornato!' : 'Snippet salvato!', 'success');
         } catch (err) {
-            alert('Errore: ' + err.message);
+            showToast('Errore: ' + err.message, 'error');
         } finally {
             setLoading(false);
         }
@@ -185,10 +186,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 showLoggedIn(data.user);
                 closeAuthModal();
-                // Ricarica snippet per questo utente
                 loadSnippets();
+                showToast('Login effettuato con successo!', 'success');
             } catch (err) {
-                alert('Errore: ' + err.message);
+                showToast('Errore: ' + err.message, 'error');
             }
         } else {
             // REGISTRAZIONE
@@ -196,11 +197,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const confirm = document.getElementById('authConfirm').value;
 
             if (password !== confirm) {
-                alert('Le password non coincidono');
+                showToast('Le password non coincidono', 'error');
                 return;
             }
             if (!username) {
-                alert('Inserisci un username');
+                showToast('Inserisci un username', 'error');
                 return;
             }
 
@@ -228,10 +229,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 showLoggedIn(data.user)
                 closeAuthModal();
-                // Ricarica snippet per questo utente
                 loadSnippets();
+                showToast('Registrazione completata!', 'success');
             } catch (err) {
-                alert('Errore: ' + err.message);
+                showToast('Errore: ' + err.message, 'error');
             }
         }
 
@@ -342,7 +343,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 filterAndRender();
             }, 300);
         } catch (err) {
-            alert('Errore: ' + err.message);
+            showToast('Errore: ' + err.message, 'error');
         }
     }
 
@@ -469,7 +470,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.execCommand('copy');
             showCopyFeedback(button);
         } catch (e) {
-            alert('Impossibile copiare. Seleziona il codice manualmente.');
+            showToast('Impossibile copiare. Seleziona il codice manualmente.', 'error');
         }
         document.body.removeChild(textarea);
     }
@@ -492,6 +493,30 @@ document.addEventListener('DOMContentLoaded', function () {
                 iconSvg.innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>';
             }
         }, 2000);
+    }
+
+    // Toast notifications
+    function showToast(message, type) {
+        type = type || 'info';
+        const container = document.getElementById('toastContainer');
+        
+        const toast = document.createElement('div');
+        toast.className = 'toast toast--' + type;
+        
+        const icons = { success: '✓', error: '✗', info: 'ℹ' };
+        toast.innerHTML = '<span class="toast-icon">' + (icons[type] || 'ℹ') + '</span>' + escapeHtml(message);
+        
+        toast.addEventListener('click', function () {
+            toast.classList.add('toast--out');
+            setTimeout(function () { toast.remove(); }, 300);
+        });
+        
+        container.appendChild(toast);
+        
+        setTimeout(function () {
+            toast.classList.add('toast--out');
+            setTimeout(function () { toast.remove(); }, 300);
+        }, 3000);
     }
 
     function escapeHtml(text) {
@@ -544,6 +569,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         showLoggedOut();
-        alert('Logout effettuato');
+        showToast('Logout effettuato', 'info');
     });
 });

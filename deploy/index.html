@@ -23,19 +23,21 @@
     <div class="container">
         <!-- Header -->
         <header>
-            <h1>
-                < MemCode>
-                    </MemCode>
-            </h1>
-            <p class="subtitle">Il tuo archivio personale di snippet di codice</p>
-            <div class="auth-buttons">
-                <button id="btnLogin" class="btn-auth btn-auth--login">Accedi</button>
-                <button id="btnRegister" class="btn-auth btn-auth--register">Registrati</button>
+            <div class="header">
+                <h1>
+                    < MemCode>
+                        </MemCode>
+                </h1>
+                <p class="subtitle">Il tuo archivio personale di snippet di codice</p>
+                <div class="auth-buttons">
+                    <button id="btnLogin" class="btn-auth btn-auth--login">Accedi</button>
+                    <button id="btnRegister" class="btn-auth btn-auth--register">Registrati</button>
+                </div>
+                <div class="user-info" id="userInfo" style="display:none;">
+                    <span class="user-greeting">Ciao, <span id="userDisplayName"></span></span>
+                    <button id="btnLogout" class="btn-auth btn-auth--logout">Logout</button>
+                </div>
             </div>
-            <div class="user-info" id="userInfo" style="display:none;">
-                <span class="user-greeting">Ciao, <span id="userDisplayName"></span></span>
-                <button id="btnLogout" class="btn-auth btn-auth--logout">Logout</button>
-            </div> 
         </header>
 
         <!-- Modale Auth -->
@@ -181,6 +183,9 @@
             </div>
         </section>
     </div>
+
+    <!-- Toast container -->
+    <div id="toastContainer" class="toast-container"></div>
 
     <!-- Custom JS -->
     <script src="js/app.js"></script>
