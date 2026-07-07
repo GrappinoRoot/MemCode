@@ -27,6 +27,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnLogout = document.getElementById('btnLogout');
     const authButtons = document.querySelector('.auth-buttons');
 
+    function getAuthHeaders() {
+        const token = localStorage.getItem('authToken');
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) {
+            headers['Authorization'] = 'Bearer ' + token;
+        }
+        return headers;
+    }
+
     let allSnippets = [];
     let editingId = null;
     let isLoginMode = true;
@@ -62,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const method = editingId ? 'PUT' : 'POST';
             const response = await fetch(API_URL, {
                 method: method,
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAuthHeaders(),
                 body: JSON.stringify(snippetData)
             });
 
@@ -274,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function () {
         setLoading(true);
 
         try {
-            const response = await fetch(API_URL);
+            const response = await fetch(API_URL, { headers: getAuthHeaders() });
             if (!response.ok) throw new Error('Errore nel caricamento');
 
             allSnippets = await response.json();
@@ -313,7 +322,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             const response = await fetch(API_URL + '&id=' + id, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: getAuthHeaders()
             });
 
             if (!response.ok) {

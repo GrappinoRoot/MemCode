@@ -13,7 +13,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once __DIR__ . '/../config/database.php';
 
-function sanitizeInput($data) {
+function getUserIdFromToken($pdo)
+{
+    $headers = getallheaders();
+    $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+
+    if (!preg_match('/^Bearer\s+(.+)$/', $authHeader, $matches)) {
+        return null;
+    }
+
+    $token = $matches[1];
+    $stmt = $pdo->prepare('SELECT user_id FROM sessions WHERE token = :token');
+    $stmt->execute([':token' => $token]);
+    $session = $stmt->fetch();
+
+    return $session ? $session['user_id'] : null;
+}
+
+function sanitizeInput($data)
+{
     if (is_string($data)) {
         return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
     }
@@ -25,7 +43,15 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 // GET: Recuperare tutti gli snippet
 if ($method === 'GET') {
-    $stmt = $pdo->query('SELECT * FROM snippets ORDER BY created_at DESC');
+    $userId = getUserIdFromToken($pdo);
+    if (!$userId) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Autenticazione richiesta']);
+        return;
+    }
+
+    $stmt = $pdo->prepare('SELECT * FROM snippets WHERE user_id = :user_id ORDER BY created_at DESC');
+    $stmt->execute([':user_id' => $userId]);
     $snippets = $stmt->fetchAll();
     echo json_encode($snippets, JSON_UNESCAPED_UNICODE);
     return;
@@ -49,9 +75,16 @@ if ($method === 'POST') {
     }
 
     $stmt = $pdo->prepare('
-        INSERT INTO snippets (title, language, category, code, notes)
-        VALUES (:title, :language, :category, :code, :notes)
+        INSERT INTO snippets (title, language, category, code, notes, user_id)
+        VALUES (:title, :language, :category, :code, :notes, :user_id)
     ');
+
+    $userId = getUserIdFromToken($pdo);
+    if (!$userId) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Autenticazione richiesta']);
+        return;
+    }
 
     $stmt->execute([
         ':title' => sanitizeInput($input['title']),
@@ -59,6 +92,7 @@ if ($method === 'POST') {
         ':category' => sanitizeInput($input['category'] ?? ''),
         ':code' => $input['code'],
         ':notes' => sanitizeInput($input['notes']),
+        ':user_id' => $userId,
     ]);
 
     $newId = $pdo->lastInsertId();
@@ -89,8 +123,15 @@ if ($method === 'PUT') {
         return;
     }
 
-    $stmt = $pdo->prepare('SELECT * FROM snippets WHERE id = :id');
-    $stmt->execute([':id' => $id]);
+    $userId = getUserIdFromToken($pdo);
+    if (!$userId) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Autenticazione richiesta']);
+        return;
+    }
+
+    $stmt = $pdo->prepare('SELECT * FROM snippets WHERE id = :id AND user_id = :user_id');
+    $stmt->execute([':id' => $id, ':user_id' => $userId]);
     $existing = $stmt->fetch();
 
     if (!$existing) {
@@ -138,8 +179,15 @@ if ($method === 'DELETE') {
         return;
     }
 
-    $stmt = $pdo->prepare('SELECT * FROM snippets WHERE id = :id');
-    $stmt->execute([':id' => $id]);
+    $userId = getUserIdFromToken($pdo);
+    if (!$userId) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Autenticazione richiesta']);
+        return;
+    }
+
+    $stmt = $pdo->prepare('SELECT * FROM snippets WHERE id = :id AND user_id = :user_id');
+    $stmt->execute([':id' => $id, ':user_id' => $userId]);
     $existing = $stmt->fetch();
 
     if (!$existing) {
@@ -151,7 +199,7 @@ if ($method === 'DELETE') {
     $stmt = $pdo->prepare('DELETE FROM snippets WHERE id = :id');
     $stmt->execute([':id' => $id]);
 
-    echo json_encode(['message' => 'Snippet eliminato con successo', 'id' => (int)$id]);
+    echo json_encode(['message' => 'Snippet eliminato con successo', 'id' => (int) $id]);
     return;
 }
 
