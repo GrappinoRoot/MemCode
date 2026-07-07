@@ -463,6 +463,15 @@ header h1 {
     background: #2563eb;
 }
 
+.btn-auth--logout {
+    background-color: rgb(106, 26, 26);
+    color: white;
+}
+
+.btn-auth--logout:hover {
+    background-color: rgb(198, 5, 5);
+}
+
 .btn-auth:active {
     transform: scale(0.97);
 }
@@ -521,4 +530,13 @@ header h1 {
 
 .auth-switch a:hover {
     text-decoration: underline;
+}
+
+.user-greeting {
+    display: flex;
+    color: #2f2d2b;
+    gap: 4px;
+    margin-top: 4px;
+    margin-right: 8px;
+    font-size: 24px;
 }

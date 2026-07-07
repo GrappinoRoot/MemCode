@@ -425,3 +425,27 @@ header h1 {
     color: #9ca3af;
     font-size: 0.85rem;
 }
+
+/* Utente loggato */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.user-greeting {
+    font-size: 0.95rem;
+    color: #374151;
+    font-weight: 500;
+}
+
+.btn-auth--logout {
+    background: white;
+    color: #ef4444;
+    border-color:#3f3444
+}
+.btn-auth--logout:hover {
+    background-color: #fef2f2;
+}

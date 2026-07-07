@@ -22,6 +22,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const submitBtn = snippetForm.querySelector('.btn-submit');
     const btnIcon = submitBtn.querySelector('.btn-icon');
     const btnText = submitBtn.querySelector('.btn-text');
+    const userInfo = document.getElementById('userInfo');
+    const userDisplayName = document.getElementById('userDisplayName');
+    const btnLogout = document.getElementById('btnLogout');
+    const authButtons = document.querySelector('.auth-buttons');
 
     let allSnippets = [];
     let editingId = null;
@@ -29,6 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Carica snippet all'avvio
     loadSnippets();
+    checkAuthState();
 
     // Ricerca e filtro live
     searchInput.addEventListener('input', filterAndRender);
@@ -169,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 localStorage.setItem('authToken', data.token);
                 localStorage.setItem('authUser', JSON.stringify(data.user));
 
-                alert('Benvenuto ' + data.user.username + '!');
+                showLoggedIn(data.user);
                 closeAuthModal();
                 // Ricarica snippet per questo utente
                 loadSnippets();
@@ -212,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 localStorage.setItem('authToken', data.token);
                 localStorage.setItem('authUser', JSON.stringify(data.user));
 
-                alert('Registrazione completata! Benvenuto ' + data.user.username + '!');
+                showLoggedIn(data.user)
                 closeAuthModal();
                 // Ricarica snippet per questo utente
                 loadSnippets();
@@ -485,4 +490,50 @@ document.addEventListener('DOMContentLoaded', function () {
         div.textContent = text;
         return div.innerHTML;
     }
+
+    // Controlla se utente già loggato all'avvio
+    function checkAuthState() {
+        const token = localStorage.getItem('authToken');
+        const userData = localStorage.getItem('authUser');
+
+        if (token && userData) {
+            const user = JSON.parse(userData);
+            showLoggedIn(user);
+        } else {
+            showLoggedOut();
+        }
+    }
+
+    function showLoggedIn(user) {
+        authButtons.style.display = 'none'
+        userInfo.style.display = 'flex'
+        userDisplayName.textContent = user.username || user.email;
+    }
+
+    function showLoggedOut() {
+        authButtons.style.display = 'flex'
+        userInfo.style.display = 'none'
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('authUser');
+    }
+
+    // Logout
+    btnLogout.addEventListener('click', async function () {
+        const token = localStorage.getItem('authToken');
+
+        if (token) {
+            try {
+                await fetch(window.location.origin + '/api/auth.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'logout', token: token })
+                });
+            } catch (e) {
+                // Ignora errori di logout
+            }
+        }
+
+        showLoggedOut();
+        alert('Logout effettuato');
+    });
 });
